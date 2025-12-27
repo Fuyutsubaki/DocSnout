@@ -3,6 +3,7 @@
   "name": "DocSnout",
   "version": "0.0.1",
   "description": "最小構成のChrome拡張（機能追加の土台）",
+  "permissions": ["activeTab", "scripting"],
   "action": {
     "default_title": "DocSnout",
     "default_popup": "popup.html",
@@ -20,4 +21,3 @@
     "128": "icons/icon128.png"
   }
 }
-
