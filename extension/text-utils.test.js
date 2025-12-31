@@ -6,17 +6,16 @@ const {
   countUnicodeCodePoints,
 } = require("./text-utils.js");
 
-test("normalizeWhitespace: collapses and trims whitespace", () => {
+test("normalizeWhitespace: 空白を正規化する", () => {
   assert.equal(normalizeWhitespace("  a\n\t b  "), "a b");
   assert.equal(normalizeWhitespace(""), "");
   assert.equal(normalizeWhitespace(null), "");
 });
 
-test("countUnicodeCodePoints: counts unicode code points", () => {
+test("countUnicodeCodePoints: Unicodeコードポイントを数える", () => {
   assert.equal(countUnicodeCodePoints("abc"), 3);
-  assert.equal(countUnicodeCodePoints("a\u0301"), 2); // combining mark
-  assert.equal(countUnicodeCodePoints("😀"), 1); // surrogate pair
+  assert.equal(countUnicodeCodePoints("a\u0301"), 2); // 結合文字
+  assert.equal(countUnicodeCodePoints("😀"), 1); // サロゲートペア
   assert.equal(countUnicodeCodePoints(""), 0);
   assert.equal(countUnicodeCodePoints(null), 0);
 });
-

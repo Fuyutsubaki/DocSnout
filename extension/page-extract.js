@@ -28,7 +28,7 @@
   }
 
   function describeElement(element) {
-    if (!element || !element.tagName) return "unknown";
+    if (!element || !element.tagName) return "不明";
     const tag = element.tagName.toLowerCase();
     const id = element.id ? `#${element.id}` : "";
     const classNames =
@@ -73,7 +73,7 @@
     if (!textUtils) {
       return {
         ok: false,
-        reason: "text utils is not available",
+        reason: "文字数計算の処理を読み込めませんでした",
       };
     }
 

@@ -1,6 +1,6 @@
 const $ = (id) => {
   const element = document.getElementById(id);
-  if (!element) throw new Error(`missing element: #${id}`);
+  if (!element) throw new Error(`要素が見つかりません: #${id}`);
   return element;
 };
 
@@ -30,7 +30,7 @@ function queryActiveTab() {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const err = chrome.runtime?.lastError;
       if (err) {
-        reject(new Error(err.message || "tabs query failed"));
+        reject(new Error(err.message || "タブ情報の取得に失敗しました"));
         return;
       }
       resolve(tabs?.[0] ?? null);
@@ -43,7 +43,9 @@ function executeFiles(tabId, files) {
     chrome.scripting.executeScript({ target: { tabId }, files }, () => {
       const err = chrome.runtime?.lastError;
       if (err) {
-        reject(new Error(err.message || "executeScript(files) failed"));
+        reject(
+          new Error(err.message || "ページへのスクリプト注入に失敗しました"),
+        );
         return;
       }
       resolve();
@@ -56,7 +58,7 @@ function executeFunc(tabId, func) {
     chrome.scripting.executeScript({ target: { tabId }, func }, (results) => {
       const err = chrome.runtime?.lastError;
       if (err) {
-        reject(new Error(err.message || "executeScript(func) failed"));
+        reject(new Error(err.message || "ページ側の処理実行に失敗しました"));
         return;
       }
       resolve(results?.[0]?.result ?? null);
@@ -91,11 +93,17 @@ async function recalc() {
       try {
         const extractor = globalThis.DocSnoutPageExtract;
         if (!extractor?.extract) {
-          return { ok: false, reason: "extractor is not available" };
+          return { ok: false, reason: "本文抽出の処理を読み込めませんでした" };
         }
         return extractor.extract();
       } catch (e) {
-        return { ok: false, reason: String(e?.message || e) };
+        return {
+          ok: false,
+          reason:
+            typeof e?.message === "string" && e.message
+              ? e.message
+              : "本文抽出中にエラーが発生しました",
+        };
       }
     });
 

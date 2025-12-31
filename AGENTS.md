@@ -35,3 +35,9 @@ This repository has no commit history yet, so no conventions are established. Un
 ## Agent-Specific Notes
 The workflow documents reference external paths such as `vibes/tmp/{branch}/design.md`.
 When updating instructions, keep those paths consistent and avoid adding steps that assume a specific branch or environment unless explicitly required.
+
+## 言語
+- コメントなどは自然な日本語を用いること
+- 造語禁止。**必ず一般的な技術用語、広く使われる日本語を使うこと**
+- 不自然な翻訳禁止。**必ず一般的な日本語翻訳を行い、不自然な日本語になりそうな場合は元の英単語を使うこと**
+- 省略禁止。**必ずこのレポート単体で理解できるようにすること**
