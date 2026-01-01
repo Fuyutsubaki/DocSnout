@@ -90,6 +90,9 @@
       <div class="key">文字数</div>
       <div class="val count" id="count">—</div>
 
+      <div class="key">読了時間</div>
+      <div class="val" id="readingTime">—</div>
+
       <div class="key">抽出元</div>
       <div class="val" id="source">—</div>
 
@@ -99,10 +102,12 @@
 
     <div class="controls">
       <button id="recalc" type="button">再計算</button>
+      <button id="openOptions" type="button">設定</button>
       <div class="badge" id="status" aria-label="状態">待機中</div>
     </div>
 
     <div class="error" id="error" aria-hidden="true"></div>
+    <script src="text-utils.js"></script>
     <script src="popup.js" defer></script>
   </body>
 </html>

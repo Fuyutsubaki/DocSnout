@@ -11,7 +11,24 @@
     return count;
   }
 
-  const api = { normalizeWhitespace, countUnicodeCodePoints };
+  function estimateReadingMinutes({
+    characterCount,
+    speedCpm,
+    difficultyFactor = 1.0,
+  }) {
+    const count = Number(characterCount);
+    const speed = Number(speedCpm);
+    const factor = Number(difficultyFactor);
+
+    if (!Number.isFinite(count) || count < 0) return null;
+    if (!Number.isFinite(speed) || speed <= 0) return null;
+    if (!Number.isFinite(factor) || factor <= 0) return null;
+
+    const minutes = Math.ceil((count / speed) * factor);
+    return Math.max(1, minutes);
+  }
+
+  const api = { normalizeWhitespace, countUnicodeCodePoints, estimateReadingMinutes };
 
   if (typeof module !== "undefined" && module.exports) {
     module.exports = api;
@@ -20,4 +37,3 @@
 
   globalScope.DocSnoutTextUtils = api;
 })(typeof globalThis !== "undefined" ? globalThis : window);
-

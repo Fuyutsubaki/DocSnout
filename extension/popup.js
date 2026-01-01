@@ -4,6 +4,9 @@ const $ = (id) => {
   return element;
 };
 
+const STORAGE_KEY_READING_SPEED_CPM = "readingSpeedCpm";
+const DEFAULT_READING_SPEED_CPM = 500;
+
 function setStatus(text) {
   $("status").textContent = text;
 }
@@ -19,10 +22,42 @@ function setError(message) {
   error.setAttribute("aria-hidden", "false");
 }
 
-function setResult({ count, source, title }) {
+function formatReadingTime(minutes) {
+  if (typeof minutes !== "number" || !Number.isFinite(minutes)) return "—";
+  return `約${minutes}分`;
+}
+
+function setResult({ count, source, title, readingMinutes }) {
   $("count").textContent = typeof count === "number" ? String(count) : "—";
+  $("readingTime").textContent = formatReadingTime(readingMinutes);
   $("source").textContent = source || "—";
   $("title").textContent = title || "—";
+}
+
+function loadReadingSpeedCpm() {
+  return new Promise((resolve) => {
+    if (!chrome?.storage?.local) {
+      resolve(DEFAULT_READING_SPEED_CPM);
+      return;
+    }
+
+    chrome.storage.local.get([STORAGE_KEY_READING_SPEED_CPM], (items) => {
+      const err = chrome.runtime?.lastError;
+      if (err) {
+        resolve(DEFAULT_READING_SPEED_CPM);
+        return;
+      }
+
+      const raw = items?.[STORAGE_KEY_READING_SPEED_CPM];
+      const speed = Number(raw);
+      if (Number.isFinite(speed) && speed > 0) {
+        resolve(speed);
+        return;
+      }
+
+      resolve(DEFAULT_READING_SPEED_CPM);
+    });
+  });
 }
 
 function queryActiveTab() {
@@ -72,9 +107,10 @@ async function recalc() {
   $("recalc").disabled = true;
 
   try {
+    const speedCpm = await loadReadingSpeedCpm();
     const tab = await queryActiveTab();
     if (!tab?.id) {
-      setResult({ count: null, source: "", title: "" });
+      setResult({ count: null, source: "", title: "", readingMinutes: null });
       setError("対象タブが見つかりませんでした");
       setStatus("失敗");
       return;
@@ -112,6 +148,7 @@ async function recalc() {
         count: null,
         source: "",
         title: result?.title || "",
+        readingMinutes: null,
       });
       const reason =
         result?.reason ||
@@ -125,10 +162,16 @@ async function recalc() {
       count: result.count,
       source: result.source,
       title: result.title,
+      readingMinutes:
+        globalThis.DocSnoutTextUtils?.estimateReadingMinutes?.({
+          characterCount: result.count,
+          speedCpm,
+          difficultyFactor: 1.0,
+        }) ?? null,
     });
     setStatus("完了");
   } catch (e) {
-    setResult({ count: null, source: "", title: "" });
+    setResult({ count: null, source: "", title: "", readingMinutes: null });
     setError(
       `このページでは計測できません（${String(e?.message || e)}）`,
     );
@@ -141,6 +184,9 @@ async function recalc() {
 document.addEventListener("DOMContentLoaded", () => {
   $("recalc").addEventListener("click", () => {
     void recalc();
+  });
+  $("openOptions").addEventListener("click", () => {
+    chrome.runtime.openOptionsPage();
   });
   void recalc();
 });
