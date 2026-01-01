@@ -1,4 +1,4 @@
-// このファイルは Native Messaging Host のエントリーポイントとしてメッセージを受信し、A.I.VOICE の操作に振り分けます。
+// このファイルは Native Messaging ホストのエントリーポイントとしてメッセージを受信し、A.I.VOICE の操作に振り分けます。
 using System.Text.Json;
 
 namespace DocSnout.AiVoiceHost;

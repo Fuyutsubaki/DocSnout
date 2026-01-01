@@ -1,4 +1,4 @@
-// このファイルは Native Messaging Host に送る再生・停止・状態取得リクエストを構築します。
+// このファイルは Native Messaging ホストに送る再生・停止・状態取得リクエストを構築します。
 (function initDocSnoutAiVoiceProtocol(globalScope) {
   const HOST_NAME = "com.docsnout.aivoice";
 
