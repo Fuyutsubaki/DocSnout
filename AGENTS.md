@@ -1,30 +1,34 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-This repository is a documentation-only workflow kit. The main content lives in `kanban/`:
-- `kanban/workflow.md`: end-to-end workflow for design, implementation, review, and refactor loops.
-- `kanban/design.md`, `kanban/simple-impl.md`, `kanban/review.md`, `kanban/refactor.md`: phase-specific instructions.
-- `kanban/review-claude.sh`: helper script to run automated reviews.
-
-There is no application source tree or test directory at the moment.
+このリポジトリは以下で構成されます。
+- `extension/`: Chrome 拡張（MV3）
+- `native-host/`: Native Messaging Host（Windows/.NET、A.I.VOICE Editor API 呼び出し）
+- `vibes/kanban/`: vibe kanban 用のワークフロー（設計→実装→レビュー→リファクタ）
 
 ## Build, Test, and Development Commands
-There is no build system. The only runnable command in this repo is the review helper:
-- `./kanban/review-claude.sh`: runs Claude-based PR review using the rules in `kanban/review.md`.
-
-If you add scripts or tooling, document them here with a one-line purpose and any required environment variables.
+- 拡張のテスト（Node の組み込みテストランナー）
+  - `node --test extension/text-utils.test.js`: 文字数ユーティリティのテスト
+  - `node --test extension/page-extract.test.js`: 本文抽出のテスト
+  - `node --test extension/aivoice-protocol.test.js`: Native Messaging のリクエスト構築テスト
+  - `node --test extension/aivoice-state.test.js`: 状態遷移（縮約関数）のテスト
+- レビュー補助（Claude CLI が必要）
+  - `./vibes/kanban/review-claude.sh`: `vibes/kanban/review.md` のルールでレビューを行う
+- Native Messaging Host（Windows）
+  - `dotnet publish native-host/DocSnout.AiVoiceHost/DocSnout.AiVoiceHost.csproj ...`: Host のビルド例（詳細は `native-host/README.md`）
+  - `.\native-host\install-host.ps1`: Chrome への Host 登録（拡張 ID と exe パスが必要）
+    - 環境変数: `DOCSNOUT_AIVOICE_API_DLL`（`AI.Talk.Editor.Api.dll` のパス。自動検出できない場合に指定）
 
 ## Coding Style & Naming Conventions
-All files are Markdown or shell scripts. Keep Markdown concise and instructional:
-- Use clear headings, short paragraphs, and numbered steps for procedures.
-- Favor ASCII file names with hyphen separation (for example, `new-workflow-step.md`).
-- Shell scripts should be POSIX-friendly, include `set -e`, and explain non-obvious flags.
+- JavaScript: 既存の書き方（関数分割、例外メッセージは日本語）に合わせる
+- Markdown: 見出しと手順を明確にし、短い段落で説明する
+- スクリプト:
+  - `bash`: POSIX 互換、`set -e` を入れる
+  - `PowerShell`: 破壊的操作を避け、必須パラメータは `Mandatory` にする
 
 ## Testing Guidelines
-No automated tests are defined. If you introduce code in the future, add a test directory and document:
-- the framework (for example, `pytest` or `go test`)
-- how to run tests locally (command and expected scope)
-- naming conventions (for example, `*_test` files)
+- 既存の `node:test`（`node --test`）を利用する
+- 新規テストは `extension/*.test.js` で追加する
 
 ## Commit & Pull Request Guidelines
 This repository has no commit history yet, so no conventions are established. Until a standard emerges:

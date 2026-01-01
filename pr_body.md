@@ -1,31 +1,37 @@
 ## 変更概要
-文字数カウント結果から読了時間（約N分）を推定してポップアップに表示し、読書速度（文字/分）を設定画面から変更できるようにしました。
+Chrome 拡張と Native Messaging Host を一体として実装し、A.I.VOICE Editor API による読み上げを End-to-End で動かせるようにしました。あわせて、本文抽出・メッセージ構築・状態遷移のテストを追加し、回帰を防ぎます。
 
 ## 変更内容
-- ポップアップに「読了時間（約N分）」の表示を追加（文字数の近く）
-- 設定画面（options page）を追加し、読書速度（文字/分）を保存・変更可能に
-- 読了時間推定ロジックを `extension/text-utils.js` に追加し、テストを追加
-- 設定の読み書き処理を `extension/settings.js` に集約（ポップアップ/設定画面の重複を削減）
-- `chrome.storage.local` 利用のため `storage` 権限を追加
+- 拡張（MV3）
+  - Service Worker（`extension/background.js`）で Native Messaging Host へ接続し、`play/stop/status` を中継
+  - ポップアップに「読み上げ / 停止」ボタンと TTS 状態表示を追加
+  - 本文抽出を拡張し、読み上げ用の本文テキスト（最大 12000 code points）を返す
+  - `nativeMessaging` 権限を追加
+- Native Messaging Host（Windows/.NET）
+  - `native-host/DocSnout.AiVoiceHost/` を追加（`AI.Talk.Editor.Api.dll` をリフレクションで読み込み）
+  - 10分無操作切断に備え、定期的に `Status` を参照して再接続を試行
+  - Chrome 登録用の PowerShell スクリプトと manifest template を追加
+- テスト（拡張側）
+  - `extension/page-extract.test.js`
+  - `extension/aivoice-protocol.test.js`
+  - `extension/aivoice-state.test.js`
 
 ## 変更理由（タスク背景）
-- 文字数だけでは読み終わる目安が分かりにくいため、読了時間を推定してポップアップ内で即座に確認できるようにするためです。
-- 読書速度は個人差が大きいので、設定画面から変更可能にし、初期値を 500文字/分 としました。
+Webページ本文を A.I.VOICE で読み上げるユースケースを、拡張単体ではなく「拡張 + Native Host + Editor API」まで含めて End-to-End で成立させるためです。
 
 ## 実装詳細
-- 入力: 既存の文字数カウント結果（Unicodeコードポイント数）をそのまま使用
-- 計算式: `読了時間(分) = 文字数 / 読書速度 × 1.0`
-  - 難易度係数は暫定で固定 `1.0`（UIには表示しません）
-- 表示: `約N分`
-  - 丸め: 切り上げ（`Math.ceil`）
-  - 1分未満: `約1分`
-- 設定保存先: `chrome.storage.local`
-  - キー: `readingSpeedCpm`
-  - 既定値: `500`
-- UI導線: ポップアップに「設定」ボタンを追加し、`chrome.runtime.openOptionsPage()` で設定画面を開けるようにしました。
+- Native Messaging の Host 名: `com.docsnout.aivoice`
+- リクエスト/レスポンス
+  - request: `{ id, type: "play" | "stop" | "status", ... }`
+  - response: `{ id, ok, data?, error? }`
+- A.I.VOICE Editor API
+  - `AI.Talk.Editor.Api.TtsControl` を利用（ビルド時参照はせず、実行時に DLL を読み込む）
+  - 利用可能な `HostName` は `GetAvailableHostNames()` の先頭を採用
+  - `Status` が `NotConnected/NotRunning` の場合は `StartHost`→`Connect` を試行
 
 ## 動作確認
-- `node --test extension/text-utils.test.js`
+- 拡張テスト: `node --test extension/*.test.js`
+- Native Host: `native-host/README.md` の手順で Windows 上で確認
 
 ---
 This PR was written using [Vibe Kanban](https://vibekanban.com)

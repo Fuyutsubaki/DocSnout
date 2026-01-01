@@ -1,9 +1,12 @@
 {
   "manifest_version": 3,
   "name": "DocSnout",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "最小構成のChrome拡張（機能追加の土台）",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage", "nativeMessaging"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_title": "DocSnout",
     "default_popup": "popup.html",

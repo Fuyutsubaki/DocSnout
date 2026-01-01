@@ -44,6 +44,9 @@
         gap: 8px;
         align-items: center;
       }
+      .controls.secondary {
+        margin-top: 10px;
+      }
       button {
         appearance: none;
         border: 1px solid #d1d5db;
@@ -82,6 +85,19 @@
       .error[aria-hidden="false"] {
         display: block;
       }
+      .tts {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #374151;
+        display: grid;
+        gap: 6px;
+      }
+      .tts .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+      }
     </style>
   </head>
   <body>
@@ -106,9 +122,21 @@
       <div class="badge" id="status" aria-label="状態">待機中</div>
     </div>
 
+    <div class="tts" aria-label="読み上げ">
+      <div class="row">
+        <div class="key">TTS</div>
+        <div class="val" id="ttsStatus">—</div>
+      </div>
+      <div class="controls secondary">
+        <button id="play" type="button">読み上げ</button>
+        <button id="stop" type="button">停止</button>
+      </div>
+    </div>
+
     <div class="error" id="error" aria-hidden="true"></div>
     <script src="settings.js"></script>
     <script src="text-utils.js"></script>
+    <script src="aivoice-protocol.js"></script>
     <script src="popup.js" defer></script>
   </body>
 </html>
