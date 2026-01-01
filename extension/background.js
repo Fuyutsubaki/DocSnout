@@ -66,6 +66,7 @@
       const resp = await sendNativeRequest(payload);
       return resp;
     } catch (e) {
+      console.warn("DocSnout: native host error, retrying once", e);
       // 1回だけ再接続してリトライする
       port = null;
       const resp = await sendNativeRequest(payload);

@@ -6,6 +6,7 @@ internal sealed class AiVoiceClient : IDisposable
 {
     private const string ApiTypeName = "AI.Talk.Editor.Api.TtsControl";
     private const string EnvApiDll = "DOCSNOUT_AIVOICE_API_DLL";
+    private const string EnvHostName = "DOCSNOUT_AIVOICE_HOSTNAME";
     private readonly object gate = new();
 
     private Assembly? apiAssembly;
@@ -52,7 +53,12 @@ internal sealed class AiVoiceClient : IDisposable
         {
             try
             {
-                EnsureConnected();
+                EnsureLoaded();
+                var status = SafeGetStatusString();
+                if (status == "NotConnected" || status == "NotRunning" || string.IsNullOrEmpty(status))
+                {
+                    return (true, new { status = "NotConnected" });
+                }
             }
             catch (Exception e)
             {
@@ -163,7 +169,10 @@ internal sealed class AiVoiceClient : IDisposable
         if (tts is null || ttsType is null) return;
 
         var hostNames = GetAvailableHostNames();
-        var desired = hostNames.FirstOrDefault() ?? "";
+        var forced = Environment.GetEnvironmentVariable(EnvHostName) ?? "";
+        var desired = !string.IsNullOrWhiteSpace(forced)
+            ? forced.Trim()
+            : hostNames.FirstOrDefault() ?? "";
         if (string.IsNullOrEmpty(desired))
         {
             throw new InvalidOperationException("利用可能な HostName を取得できませんでした（A.I.VOICE Editor が未インストールの可能性）");

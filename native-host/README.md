@@ -8,6 +8,8 @@
 - `AI.Talk.Editor.Api.dll` が PC 上に存在すること
   - 既定では、自動検出を試みます
   - 見つからない場合は環境変数 `DOCSNOUT_AIVOICE_API_DLL` で DLL パスを指定します
+- 必要に応じて利用する HostName を環境変数で固定できます
+  - `DOCSNOUT_AIVOICE_HOSTNAME`（未指定の場合は `GetAvailableHostNames()` の先頭を使用）
 
 ## ビルド（例）
 
@@ -41,4 +43,3 @@ dotnet publish native-host/DocSnout.AiVoiceHost/DocSnout.AiVoiceHost.csproj -c R
 - `status`: `Status` を返す
 
 詳細は `native-host/manifest/com.docsnout.aivoice.json.template` と `extension/aivoice-protocol.js` を参照してください。
-
