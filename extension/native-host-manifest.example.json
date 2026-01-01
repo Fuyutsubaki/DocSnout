@@ -1,0 +1,8 @@
+{
+  "name": "com.docsnout.aivoice",
+  "description": "DocSnout A.I.VOICE bridge (Native Messaging host)",
+  "path": "/absolute/path/to/docsnout-aivoice-host",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://<EXTENSION_ID>/"]
+}
+

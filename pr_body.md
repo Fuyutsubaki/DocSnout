@@ -1,31 +1,27 @@
 ## 変更概要
-文字数カウント結果から読了時間（約N分）を推定してポップアップに表示し、読書速度（文字/分）を設定画面から変更できるようにしました。
+Chrome 拡張のポップアップから、抽出した本文テキストを A.I.VOICE に送って読み上げ（再生/停止）できるようにしました。ポップアップを閉じても制御できるよう、Service Worker（background）で Native Messaging を扱います。
 
 ## 変更内容
-- ポップアップに「読了時間（約N分）」の表示を追加（文字数の近く）
-- 設定画面（options page）を追加し、読書速度（文字/分）を保存・変更可能に
-- 読了時間推定ロジックを `extension/text-utils.js` に追加し、テストを追加
-- 設定の読み書き処理を `extension/settings.js` に集約（ポップアップ/設定画面の重複を削減）
-- `chrome.storage.local` 利用のため `storage` 権限を追加
+- `page-extract.js` の抽出結果に本文テキスト（`text`）を追加
+- ポップアップに「再生/停止」ボタンと「読み上げ状態」を追加
+- Service Worker（`extension/background.js`）を追加し、Native Messaging でローカルホストへ `play/stop` を送信
+- `nativeMessaging` 権限と background service worker 設定を `manifest.json` に追加
 
 ## 変更理由（タスク背景）
-- 文字数だけでは読み終わる目安が分かりにくいため、読了時間を推定してポップアップ内で即座に確認できるようにするためです。
-- 読書速度は個人差が大きいので、設定画面から変更可能にし、初期値を 500文字/分 としました。
+- ブラウザで見ているページの本文を、A.I.VOICE で手軽に読み上げ操作できるようにするためです。
+- ポップアップを閉じても読み上げを継続できるよう、UI ではなく Service Worker 側で再生制御を担当します。
 
 ## 実装詳細
-- 入力: 既存の文字数カウント結果（Unicodeコードポイント数）をそのまま使用
-- 計算式: `読了時間(分) = 文字数 / 読書速度 × 1.0`
-  - 難易度係数は暫定で固定 `1.0`（UIには表示しません）
-- 表示: `約N分`
-  - 丸め: 切り上げ（`Math.ceil`）
-  - 1分未満: `約1分`
-- 設定保存先: `chrome.storage.local`
-  - キー: `readingSpeedCpm`
-  - 既定値: `500`
-- UI導線: ポップアップに「設定」ボタンを追加し、`chrome.runtime.openOptionsPage()` で設定画面を開けるようにしました。
+- 送信先ホスト名: `com.docsnout.aivoice`
+- Native Messaging メッセージ例:
+  - 再生: `{ action: "play", text }`
+  - 停止: `{ action: "stop" }`
+- A.I.VOICE Editor API は 10 分無操作で切断されるため、拡張側は「必要なら再接続できる」前提で状態とエラーを扱います（接続は play/stop 時に確立）。
 
 ## 動作確認
-- `node --test extension/text-utils.test.js`
+- Chrome に `extension/` を読み込み
+- 任意ページでポップアップを開き「再計算」→「再生/停止」を確認
+- Native Messaging ホスト未登録の場合、読み上げ操作がエラー表示になることを確認
 
 ---
 This PR was written using [Vibe Kanban](https://vibekanban.com)

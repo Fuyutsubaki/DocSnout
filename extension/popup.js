@@ -8,6 +8,10 @@ function setStatus(text) {
   $("status").textContent = text;
 }
 
+function setPlaybackStatus(text) {
+  $("playbackStatus").textContent = text;
+}
+
 function setError(message) {
   const error = $("error");
   if (!message) {
@@ -29,6 +33,50 @@ function setResult({ count, source, title, readingMinutes }) {
   $("readingTime").textContent = formatReadingTime(readingMinutes);
   $("source").textContent = source || "—";
   $("title").textContent = title || "—";
+}
+
+function sendRuntimeMessage(message) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(message, (response) => {
+      const err = chrome.runtime?.lastError;
+      if (err) {
+        reject(new Error(err.message || "拡張機能への送信に失敗しました"));
+        return;
+      }
+      resolve(response ?? null);
+    });
+  });
+}
+
+function normalizePlaybackLabel(state) {
+  const playback = state?.playback;
+  const connected = Boolean(state?.connected);
+  const lastError = typeof state?.lastError === "string" ? state.lastError : "";
+
+  if (lastError) return "読み上げ: エラー";
+  if (!connected) return "読み上げ: 未接続";
+  if (playback === "playing") return "読み上げ: 再生中";
+  if (playback === "stopped") return "読み上げ: 停止中";
+  if (playback === "starting") return "読み上げ: 開始中…";
+  if (playback === "stopping") return "読み上げ: 停止中…";
+  if (playback === "idle") return "読み上げ: 待機中";
+  if (playback === "unknown") return "読み上げ: 不明";
+  return `読み上げ: ${String(playback || "—")}`;
+}
+
+function applyPlaybackUi(state, { hasText }) {
+  setPlaybackStatus(normalizePlaybackLabel(state));
+
+  const lastError = typeof state?.lastError === "string" ? state.lastError : "";
+  if (lastError) setError(`読み上げ: ${lastError}`);
+
+  const playback = state?.playback;
+  const canPlay =
+    Boolean(hasText) && playback !== "starting" && playback !== "stopping";
+  const canStop = playback === "playing" || playback === "starting";
+
+  $("play").disabled = !canPlay;
+  $("stop").disabled = !canStop;
 }
 
 function queryActiveTab() {
@@ -76,6 +124,8 @@ async function recalc() {
   setError("");
   setStatus("計測中…");
   $("recalc").disabled = true;
+  $("play").disabled = true;
+  $("stop").disabled = true;
 
   try {
     const speedCpm =
@@ -127,9 +177,11 @@ async function recalc() {
         "このページでは計測できません（対象ページ不可の可能性）";
       setError(reason);
       setStatus("失敗");
+      setPlaybackStatus("読み上げ: —");
       return;
     }
 
+    const extractedText = typeof result.text === "string" ? result.text : "";
     setResult({
       count: result.count,
       source: result.source,
@@ -141,15 +193,91 @@ async function recalc() {
           difficultyFactor: 1.0,
         }) ?? null,
     });
+    globalThis.__docSnoutLastExtractedText = extractedText;
     setStatus("完了");
+
+    try {
+      const playbackState = await sendRuntimeMessage({ type: "aivoice/getState" });
+      if (playbackState?.ok === true) {
+        applyPlaybackUi(playbackState.state, {
+          hasText: Boolean(extractedText.trim()),
+        });
+      } else {
+        $("play").disabled = !Boolean(extractedText.trim());
+        $("stop").disabled = true;
+        setPlaybackStatus("読み上げ: 未接続");
+      }
+    } catch {
+      $("play").disabled = !Boolean(extractedText.trim());
+      $("stop").disabled = true;
+      setPlaybackStatus("読み上げ: 未接続");
+    }
   } catch (e) {
     setResult({ count: null, source: "", title: "", readingMinutes: null });
     setError(
       `このページでは計測できません（${String(e?.message || e)}）`,
     );
     setStatus("失敗");
+    setPlaybackStatus("読み上げ: —");
   } finally {
     $("recalc").disabled = false;
+  }
+}
+
+async function refreshPlaybackState() {
+  try {
+    const res = await sendRuntimeMessage({ type: "aivoice/getState" });
+    if (res?.ok === true) {
+      const text = String(globalThis.__docSnoutLastExtractedText || "");
+      applyPlaybackUi(res.state, { hasText: Boolean(text.trim()) });
+      return;
+    }
+    setPlaybackStatus("読み上げ: 未接続");
+  } catch {
+    setPlaybackStatus("読み上げ: 未接続");
+  }
+}
+
+async function onPlay() {
+  setError("");
+  $("play").disabled = true;
+  $("stop").disabled = true;
+  setPlaybackStatus("読み上げ: 送信中…");
+
+  const text = String(globalThis.__docSnoutLastExtractedText || "");
+  if (!text.trim()) {
+    setError("読み上げ: 本文テキストが空です（先に再計算してください）");
+    await refreshPlaybackState();
+    return;
+  }
+
+  try {
+    const res = await sendRuntimeMessage({ type: "aivoice/play", text });
+    if (res?.ok !== true) {
+      setError(`読み上げ: ${String(res?.reason || "再生に失敗しました")}`);
+    }
+  } catch (e) {
+    setError(`読み上げ: ${String(e?.message || e)}`);
+  } finally {
+    await refreshPlaybackState();
+  }
+}
+
+async function onStop() {
+  setError("");
+  $("play").disabled = true;
+  $("stop").disabled = true;
+  setPlaybackStatus("読み上げ: 送信中…");
+
+  try {
+    const res = await sendRuntimeMessage({ type: "aivoice/stop" });
+    if (res?.ok !== true) {
+      setError(`読み上げ: ${String(res?.reason || "停止に失敗しました")}`);
+    }
+  } catch (e) {
+    setError(`読み上げ: ${String(e?.message || e)}`);
+  } finally {
+    await refreshPlaybackState();
   }
 }
 
@@ -160,5 +288,16 @@ document.addEventListener("DOMContentLoaded", () => {
   $("openOptions").addEventListener("click", () => {
     chrome.runtime.openOptionsPage();
   });
+  $("play").addEventListener("click", () => void onPlay());
+  $("stop").addEventListener("click", () => void onStop());
+
+  chrome.runtime.onMessage.addListener((message) => {
+    if (!message || typeof message !== "object") return;
+    if (message.type !== "aivoice/state") return;
+    const text = String(globalThis.__docSnoutLastExtractedText || "");
+    applyPlaybackUi(message.state, { hasText: Boolean(text.trim()) });
+  });
+
+  void refreshPlaybackState();
   void recalc();
 });
