@@ -6,6 +6,7 @@
 
 - 任意ページから本文候補を抽出し、文字数（Unicodeコードポイント）を表示する
 - ポップアップに「文字数 / 抽出元 / ページタイトル」を表示し、再計算できる
+- Windows では Native Messaging Host と連携して A.I.VOICE に読み上げを依頼できる（要セットアップ）
 
 ## 使い方（Chrome に読み込む）
 
@@ -17,5 +18,10 @@
 ## 開発メモ
 
 - 拡張の実体は `extension/` 配下
-- ワークフロー手順は `kanban/`（互換用に `vibes/kanban/` にも同内容を配置）
-- 文字数ユーティリティの簡易テスト: `node --test extension/text-utils.test.js`
+- ワークフロー手順は `vibes/kanban/`
+- 拡張のテスト（Node の組み込みテストランナー）:
+  - `node --test extension/text-utils.test.js`
+  - `node --test extension/page-extract.test.js`
+  - `node --test extension/aivoice-protocol.test.js`
+  - `node --test extension/aivoice-state.test.js`
+- Native Messaging Host（Windows）: `native-host/README.md`

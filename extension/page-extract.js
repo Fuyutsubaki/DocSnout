@@ -1,6 +1,19 @@
 (function initDocSnoutPageExtract(globalScope) {
   const textUtils = globalScope.DocSnoutTextUtils;
 
+  function truncateByCodePoints(text, maxCodePoints) {
+    const max = Number(maxCodePoints);
+    if (!Number.isFinite(max) || max <= 0) return "";
+    let out = "";
+    let count = 0;
+    for (const ch of String(text ?? "")) {
+      if (count >= max) break;
+      out += ch;
+      count += 1;
+    }
+    return out;
+  }
+
   function getText(element) {
     const raw =
       typeof element?.innerText === "string"
@@ -69,7 +82,7 @@
     return best;
   }
 
-  function extract() {
+  function extract(options = {}) {
     if (!textUtils) {
       return {
         ok: false,
@@ -95,13 +108,31 @@
       };
     }
 
+    const includeText = options?.includeText === true;
+    const maxTextCodePoints =
+      typeof options?.maxTextCodePoints === "number"
+        ? options.maxTextCodePoints
+        : 12000;
+    const text = includeText
+      ? truncateByCodePoints(best.text, maxTextCodePoints)
+      : "";
+
     return {
       ok: true,
       title: document.title ?? "",
       source: describeElement(best.element),
       count: best.length,
+      text,
+      truncated: includeText ? text.length < best.text.length : false,
     };
   }
 
-  globalScope.DocSnoutPageExtract = { extract };
+  const api = { extract };
+
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = api;
+    return;
+  }
+
+  globalScope.DocSnoutPageExtract = api;
 })(typeof globalThis !== "undefined" ? globalThis : window);
