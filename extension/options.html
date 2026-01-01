@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DocSnout 設定</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        margin: 0;
+        padding: 16px;
+        color: #111827;
+        background: #ffffff;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        font-weight: 800;
+      }
+      .card {
+        max-width: 560px;
+        padding: 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #ffffff;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      input[type="number"] {
+        width: 180px;
+        padding: 8px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      .hint {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #6b7280;
+        line-height: 1.5;
+      }
+      .controls {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      button {
+        appearance: none;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+        color: #111827;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .status {
+        font-size: 12px;
+        color: #065f46;
+      }
+      .error {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #991b1b;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>DocSnout 設定</h1>
+
+    <div class="card" aria-label="読了時間の設定">
+      <label for="speedCpm">読書速度（文字/分）</label>
+      <input id="speedCpm" type="number" min="1" step="10" inputmode="numeric" />
+      <div class="hint">
+        初期値は 500 文字/分です。読了時間は「文字数 / 読書速度」を切り上げて
+        「約N分」と表示します。
+      </div>
+
+      <div class="controls">
+        <button id="save" type="button">保存</button>
+        <button id="reset" type="button">初期値に戻す</button>
+        <div class="status" id="status" aria-live="polite"></div>
+      </div>
+      <div class="error" id="error" aria-live="polite"></div>
+    </div>
+
+    <script src="settings.js"></script>
+    <script src="options.js" defer></script>
+  </body>
+</html>

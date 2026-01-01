@@ -19,8 +19,14 @@ function setError(message) {
   error.setAttribute("aria-hidden", "false");
 }
 
-function setResult({ count, source, title }) {
+function formatReadingTime(minutes) {
+  if (typeof minutes !== "number" || !Number.isFinite(minutes)) return "—";
+  return `約${minutes}分`;
+}
+
+function setResult({ count, source, title, readingMinutes }) {
   $("count").textContent = typeof count === "number" ? String(count) : "—";
+  $("readingTime").textContent = formatReadingTime(readingMinutes);
   $("source").textContent = source || "—";
   $("title").textContent = title || "—";
 }
@@ -72,9 +78,11 @@ async function recalc() {
   $("recalc").disabled = true;
 
   try {
+    const speedCpm =
+      (await globalThis.DocSnoutSettings?.loadReadingSpeedCpm?.()) ?? 500;
     const tab = await queryActiveTab();
     if (!tab?.id) {
-      setResult({ count: null, source: "", title: "" });
+      setResult({ count: null, source: "", title: "", readingMinutes: null });
       setError("対象タブが見つかりませんでした");
       setStatus("失敗");
       return;
@@ -112,6 +120,7 @@ async function recalc() {
         count: null,
         source: "",
         title: result?.title || "",
+        readingMinutes: null,
       });
       const reason =
         result?.reason ||
@@ -125,10 +134,16 @@ async function recalc() {
       count: result.count,
       source: result.source,
       title: result.title,
+      readingMinutes:
+        globalThis.DocSnoutTextUtils?.estimateReadingMinutes?.({
+          characterCount: result.count,
+          speedCpm,
+          difficultyFactor: 1.0,
+        }) ?? null,
     });
     setStatus("完了");
   } catch (e) {
-    setResult({ count: null, source: "", title: "" });
+    setResult({ count: null, source: "", title: "", readingMinutes: null });
     setError(
       `このページでは計測できません（${String(e?.message || e)}）`,
     );
@@ -141,6 +156,9 @@ async function recalc() {
 document.addEventListener("DOMContentLoaded", () => {
   $("recalc").addEventListener("click", () => {
     void recalc();
+  });
+  $("openOptions").addEventListener("click", () => {
+    chrome.runtime.openOptionsPage();
   });
   void recalc();
 });
