@@ -4,9 +4,6 @@ const $ = (id) => {
   return element;
 };
 
-const STORAGE_KEY_READING_SPEED_CPM = "readingSpeedCpm";
-const DEFAULT_READING_SPEED_CPM = 500;
-
 function setStatus(text) {
   $("status").textContent = text;
 }
@@ -32,32 +29,6 @@ function setResult({ count, source, title, readingMinutes }) {
   $("readingTime").textContent = formatReadingTime(readingMinutes);
   $("source").textContent = source || "—";
   $("title").textContent = title || "—";
-}
-
-function loadReadingSpeedCpm() {
-  return new Promise((resolve) => {
-    if (!chrome?.storage?.local) {
-      resolve(DEFAULT_READING_SPEED_CPM);
-      return;
-    }
-
-    chrome.storage.local.get([STORAGE_KEY_READING_SPEED_CPM], (items) => {
-      const err = chrome.runtime?.lastError;
-      if (err) {
-        resolve(DEFAULT_READING_SPEED_CPM);
-        return;
-      }
-
-      const raw = items?.[STORAGE_KEY_READING_SPEED_CPM];
-      const speed = Number(raw);
-      if (Number.isFinite(speed) && speed > 0) {
-        resolve(speed);
-        return;
-      }
-
-      resolve(DEFAULT_READING_SPEED_CPM);
-    });
-  });
 }
 
 function queryActiveTab() {
@@ -107,7 +78,8 @@ async function recalc() {
   $("recalc").disabled = true;
 
   try {
-    const speedCpm = await loadReadingSpeedCpm();
+    const speedCpm =
+      (await globalThis.DocSnoutSettings?.loadReadingSpeedCpm?.()) ?? 500;
     const tab = await queryActiveTab();
     if (!tab?.id) {
       setResult({ count: null, source: "", title: "", readingMinutes: null });
