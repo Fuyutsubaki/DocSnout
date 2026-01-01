@@ -1,3 +1,4 @@
+// このファイルは Chrome Native Messaging のメッセージを読み書きする処理を提供します。
 using System.Text;
 using System.Text.Json;
 
@@ -48,4 +49,3 @@ internal static class NativeMessaging
         return prop.ToString();
     }
 }
-

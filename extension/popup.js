@@ -1,3 +1,4 @@
+// このファイルは拡張機能のポップアップで本文計測と読み上げ操作のUIを提供します。
 const $ = (id) => {
   const element = document.getElementById(id);
   if (!element) throw new Error(`要素が見つかりません: #${id}`);

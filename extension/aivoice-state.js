@@ -1,3 +1,4 @@
+// このファイルは Native Messaging の接続状態と再生状態を管理する状態遷移関数を提供します。
 (function initDocSnoutAiVoiceState(globalScope) {
   const INITIAL_STATE = Object.freeze({
     phase: "idle", // idle | connecting | ready | playing | error
@@ -34,4 +35,3 @@
 
   globalScope.DocSnoutAiVoiceState = api;
 })(typeof globalThis !== "undefined" ? globalThis : window);
-

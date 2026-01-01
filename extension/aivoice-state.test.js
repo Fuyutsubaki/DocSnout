@@ -1,3 +1,4 @@
+// このファイルは aivoice-state の状態遷移をテストします。
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
@@ -29,4 +30,3 @@ test("aivoice-state: 代表的な状態遷移", () => {
   state = reduce(state, { type: "DISCONNECTED" });
   assert.equal(state.phase, "idle");
 });
-

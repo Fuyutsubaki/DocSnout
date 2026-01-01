@@ -1,3 +1,4 @@
+// このファイルは aivoice-protocol のリクエスト構築をテストします。
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
@@ -29,4 +30,3 @@ test("aivoice-protocol: stop/status リクエストを構築する", () => {
   assert.equal(status.type, "status");
   assert.equal(typeof status.id, "string");
 });
-

@@ -1,3 +1,4 @@
+// このファイルは拡張機能のオプション画面で読み上げ速度の設定を表示して保存します。
 const $ = (id) => {
   const element = document.getElementById(id);
   if (!element) throw new Error(`要素が見つかりません: #${id}`);
