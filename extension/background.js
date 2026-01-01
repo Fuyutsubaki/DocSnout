@@ -1,4 +1,4 @@
-// このファイルは拡張機能のバックグラウンドで Native Messaging の接続と要求の送受信を管理します。
+// バックグラウンドで Native Messaging の接続と要求の送受信を管理する。
 (function initDocSnoutBackground() {
   const protocol = globalThis.DocSnoutAiVoiceProtocol;
   const HOST_NAME = protocol?.HOST_NAME || "com.docsnout.aivoice";

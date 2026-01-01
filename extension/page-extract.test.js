@@ -1,4 +1,4 @@
-// このファイルは page-extract の本文抽出ロジックをテストします。
+// page-extract の本文抽出ロジックをテストする。
 const test = require("node:test");
 const assert = require("node:assert/strict");
 

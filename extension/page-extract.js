@@ -1,4 +1,4 @@
-// このファイルはページの本文候補を抽出し、文字数などの情報を返します。
+// ページの本文候補を抽出し、文字数などの情報を返す。
 (function initDocSnoutPageExtract(globalScope) {
   const textUtils = globalScope.DocSnoutTextUtils;
 

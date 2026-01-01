@@ -1,4 +1,4 @@
-// このファイルは aivoice-state の状態遷移をテストします。
+// aivoice-state の状態遷移をテストする。
 const test = require("node:test");
 const assert = require("node:assert/strict");
 

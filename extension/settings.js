@@ -1,4 +1,4 @@
-// このファイルは拡張機能の設定値を正規化し、Chrome ストレージに保存して読み出します。
+// 設定値を正規化し、Chrome ストレージに保存して読み出す。
 (function initDocSnoutSettings(globalScope) {
   const STORAGE_KEY_READING_SPEED_CPM = "readingSpeedCpm";
   const DEFAULT_READING_SPEED_CPM = 500;

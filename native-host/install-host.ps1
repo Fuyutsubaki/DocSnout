@@ -1,4 +1,4 @@
-# このファイルは Chrome に Native Messaging ホストを登録するためのマニフェスト配置とレジストリ設定を行います。
+# Chrome に Native Messaging ホストを登録するため、マニフェスト配置とレジストリ設定を行う。
 param(
   [Parameter(Mandatory = $true)]
   [string]$ExtensionId,

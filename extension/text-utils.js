@@ -1,4 +1,4 @@
-// このファイルは空白正規化、文字数カウント、読了時間推定などの文字列ユーティリティを提供します。
+// 空白正規化、文字数カウント、読了時間推定などの文字列ユーティリティを提供する。
 (function initDocSnoutTextUtils(globalScope) {
   function normalizeWhitespace(text) {
     return String(text ?? "")

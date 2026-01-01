@@ -1,4 +1,4 @@
-// このファイルは aivoice-protocol のリクエスト構築をテストします。
+// aivoice-protocol のリクエスト構築をテストする。
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
