@@ -100,6 +100,7 @@
       title: document.title ?? "",
       source: describeElement(best.element),
       count: best.length,
+      text: best.text,
     };
   }
 
