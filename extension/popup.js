@@ -4,6 +4,8 @@ const $ = (id) => {
   return element;
 };
 
+let lastExtractedText = "";
+
 function setStatus(text) {
   $("status").textContent = text;
 }
@@ -126,6 +128,7 @@ async function recalc() {
   $("recalc").disabled = true;
   $("play").disabled = true;
   $("stop").disabled = true;
+  lastExtractedText = "";
 
   try {
     const speedCpm =
@@ -193,7 +196,7 @@ async function recalc() {
           difficultyFactor: 1.0,
         }) ?? null,
     });
-    globalThis.__docSnoutLastExtractedText = extractedText;
+    lastExtractedText = extractedText;
     setStatus("完了");
 
     try {
@@ -228,8 +231,7 @@ async function refreshPlaybackState() {
   try {
     const res = await sendRuntimeMessage({ type: "aivoice/getState" });
     if (res?.ok === true) {
-      const text = String(globalThis.__docSnoutLastExtractedText || "");
-      applyPlaybackUi(res.state, { hasText: Boolean(text.trim()) });
+      applyPlaybackUi(res.state, { hasText: Boolean(lastExtractedText.trim()) });
       return;
     }
     setPlaybackStatus("読み上げ: 未接続");
@@ -244,7 +246,7 @@ async function onPlay() {
   $("stop").disabled = true;
   setPlaybackStatus("読み上げ: 送信中…");
 
-  const text = String(globalThis.__docSnoutLastExtractedText || "");
+  const text = String(lastExtractedText || "");
   if (!text.trim()) {
     setError("読み上げ: 本文テキストが空です（先に再計算してください）");
     await refreshPlaybackState();
@@ -294,8 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
   chrome.runtime.onMessage.addListener((message) => {
     if (!message || typeof message !== "object") return;
     if (message.type !== "aivoice/state") return;
-    const text = String(globalThis.__docSnoutLastExtractedText || "");
-    applyPlaybackUi(message.state, { hasText: Boolean(text.trim()) });
+    applyPlaybackUi(message.state, { hasText: Boolean(lastExtractedText.trim()) });
   });
 
   void refreshPlaybackState();
