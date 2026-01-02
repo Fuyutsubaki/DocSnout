@@ -1,3 +1,4 @@
+# Chrome に Native Messaging ホストを登録するため、マニフェスト配置とレジストリ設定を行う。
 param(
   [Parameter(Mandatory = $true)]
   [string]$ExtensionId,
@@ -34,4 +35,3 @@ New-ItemProperty -Path $regPath -Name "(default)" -Value $manifestPath -Property
 Write-Host "OK"
 Write-Host "manifest: $manifestPath"
 Write-Host "registry: $regPath"
-

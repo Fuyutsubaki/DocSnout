@@ -1,3 +1,4 @@
+// page-extract の本文抽出ロジックをテストする。
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
@@ -59,4 +60,3 @@ test("page-extract: includeText を false にすると text は空", () => {
   assert.equal(result.ok, true);
   assert.equal(result.text, "");
 });
-

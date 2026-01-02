@@ -1,3 +1,4 @@
+// A.I.VOICE Editor API を呼び出し、再生・停止・状態取得を行うクライアントを提供する。
 using System.Reflection;
 
 namespace DocSnout.AiVoiceHost;

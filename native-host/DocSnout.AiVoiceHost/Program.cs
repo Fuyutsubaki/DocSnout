@@ -1,3 +1,4 @@
+// Native Messaging ホストのエントリーポイントとしてメッセージを受信し、A.I.VOICE の操作に振り分ける。
 using System.Text.Json;
 
 namespace DocSnout.AiVoiceHost;
@@ -113,4 +114,3 @@ internal static class Program
         return 0;
     }
 }
-

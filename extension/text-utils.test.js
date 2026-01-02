@@ -1,3 +1,4 @@
+// text-utils の文字列ユーティリティをテストする。
 const test = require("node:test");
 const assert = require("node:assert/strict");
 

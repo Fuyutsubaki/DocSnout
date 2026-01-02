@@ -1,3 +1,4 @@
+// ポップアップで本文計測と読み上げ操作のユーザーインターフェースを提供する。
 const $ = (id) => {
   const element = document.getElementById(id);
   if (!element) throw new Error(`要素が見つかりません: #${id}`);

@@ -1,3 +1,4 @@
+// Native Messaging ホストに送る再生・停止・状態取得リクエストを構築する。
 (function initDocSnoutAiVoiceProtocol(globalScope) {
   const HOST_NAME = "com.docsnout.aivoice";
 
